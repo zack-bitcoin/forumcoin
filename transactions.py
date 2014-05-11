@@ -3,8 +3,7 @@ import blockchain, custom, copy, tools
 #how we update the system when new transactions are added to the blockchain.
 def addr(tx): return tools.make_address(tx['pubkeys'], len(tx['signatures']))
 
-def postid(tx):
-    print('MAKING POSTID: ' +str({'msg':tx['msg'], 'parent':tx['parent']}))
+def postid(tx): 
     return tools.det_hash({'msg':tx['msg'], 'parent':tx['parent']})
 
 def enough_coins(tx, txs, DB):

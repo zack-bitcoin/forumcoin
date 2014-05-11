@@ -21,7 +21,6 @@ def easy_add_transaction(tx_orig, privkey, DB):
     except:
         tx['count']=1
     tx['signatures']=[tools.sign(tools.det_hash(tx), privkey)]
-    print('CREATED TX: ' +str(tx))
     blockchain.add_tx(tx, DB)
 
 submit_form='''
@@ -42,7 +41,9 @@ linkHome = easyForm('/', 'HOME', '', 'get')
 
 def page1(DB, brainwallet=custom.brainwallet):
     out=empty_page
-    txt='<input type="text" name="BrainWallet" value="{}">'
+    txt='''<input type="text" name="BrainWallet" value="{}">
+    <input type="hidden" name="location" value="root">
+    '''
     out=out.format(easyForm('/home', 'Play Go!', txt.format(brainwallet)))
     return out.format('')
 
@@ -75,47 +76,58 @@ def home(DB, dic):
     out=out.format('<p>current balance is: ' +str(balance/100000.0)+'</p>{}')
     if balance>0:
         out=out.format(easyForm('/home', 'spend money', '''
+        <input type="hidden" name="location" value="{}">
         <input type="hidden" name="do" value="spend">
         <input type="text" name="to" value="address to give to">
         <input type="text" name="amount" value="amount to spend">
-        <input type="hidden" name="privkey" value="{}">'''.format(privkey)))    
+        <input type="hidden" name="privkey" value="{}">'''.format(dic['location'], privkey)))    
         out=out.format(easyForm('/home', 'create post', '''
+        <input type="hidden" name="location" value="{}">
         <input type="hidden" name="do" value="post">
         <input type="text" name="msg" value="message">
-        <input type="hidden" name="parent" value="root">        
+        <input type="hidden" name="parent" value="{}">        
         <input type="text" name="amount" value="amount to spend">
-        <input type="hidden" name="privkey" value="{}">'''.format(privkey)))    
+        <input type="hidden" name="privkey" value="{}">'''.format(dic['location'], dic['location'], privkey)))
     #out=out.format('<p>'+str(DB['posts'])+'</p>{}')
+    
     posts=map(lambda x: blockchain.db_get(x, DB), DB['posts'])
-    posts+=filter(lambda tx: tx['type']=='post', DB['txs'])
-    print('<p>'+str(posts)+'</p>{}')
+    zeroth_confirmations=filter(lambda tx: tx['type']=='post', DB['txs'])
+    posts+=zeroth_confirmations
     def display_posts(posts, parent, tabs):
-        print('DISPLAY POSTS parent: ' +str(parent))
         out='{}'
-        if tabs>4: return out
-        print('posts: ' +str(posts))
+        if tabs>3: return out
         for pos in posts:
             id_=transactions.postid(pos)
-            print('id1: ' +str(id_))
-            print('pos: ' +str(pos))
             if pos['parent']==parent:
-                print('match')
                 bumper='<div class="contentcontainer med left" style="margin-left: '+str(100*tabs)+'px;"><p>{}</p></div>'
-                out=out.format(bumper.format(str(pos['msg'])+' '+str(transactions.postid(pos)))+'{}')
+                out=out.format(bumper.format(str(pos['msg']))+'{}')
+                """
                 out=out.format(easyForm('/home', 'comment', '''
+                <input type="hidden" name="location" value="{}">
                 <input type="hidden" name="do" value="post">
                 <input type="text" name="msg" value="message">
                 <input type="hidden" name="parent" value="{}">
                 <input type="text" name="amount" value="amount to spend">
-                <input type="hidden" name="privkey" value="{}">'''.format(id_,privkey)))
+                <input type="hidden" name="privkey" value="{}">'''.format(dic['location'], id_, privkey)))
+                """
+                if not pos in zeroth_confirmations:
+                    txt=bumper.format(easyForm('/home', 'focus', '''
+                    <input type="hidden" name="location" value="{}">
+                    <input type="hidden" name="parent" value="{}">
+                    <input type="hidden" name="privkey" value="{}">'''.format(id_, id_,privkey))).format('')+'{}'
+                    out=out.format(txt)
                 out=out.format(display_posts(posts, id_, tabs+1))
         return out
-    print('out: ' +str(out))
-    out=out.format(display_posts(posts, 'root', 0))                
-    txt='''    <input type="hidden" name="privkey" value="{}">'''
-    s=easyForm('/home', 'Refresh', txt.format(privkey))
-    print('out: ' +str(out))
-    print('s: ' +str(s))
+    if dic['location']!='root':
+        msg=blockchain.db_get(dic['location'], DB)
+        print('msg: ' +str(msg))
+        out=out.format('<h1>'+msg['msg']+'</h1>{}')
+    out=out.format(display_posts(posts, dic['location'], 0))                
+    txt='''    <input type="hidden" name="privkey" value="{}">
+                <input type="hidden" name="location" value="{}">
+'''.format(privkey, '{}')
+    out=out.format(easyForm('/home', 'Current', txt.format(dic['location'])))
+    s=easyForm('/home', 'Root', txt.format('root'))
     return out.format(s)
 
 def hex2htmlPicture(string, size):

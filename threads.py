@@ -1,4 +1,4 @@
-import consensus, listener, threading, custom, leveldb, gui, networking, time, sys
+import consensus, listener, threading, custom, leveldb, gui, networking, time, sys, blockchain
 
 db=leveldb.LevelDB(custom.database_name)
 DB={'db':db, 
@@ -10,6 +10,7 @@ DB={'db':db,
     'suggested_txs':[], 
     'posts':[],
     'diffLength':'0'}
+blockchain.db_put('root', {'msg':'root', 'parent':'root', 'children':[], 'amount':0}, DB)
 todo=[
 #keeps track of blockchain database, checks on peers for new 
 #blocks and transactions.

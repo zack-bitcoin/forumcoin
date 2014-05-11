@@ -3,6 +3,8 @@ forumcoin
 
 a cryptocurrency inspired by reddit and hacker news.
 
+Donations: 1GbpRPE83Vjg73KFvTVZ4EnS2qNkiLY5TT
+
 INSTALL (for ubuntu)
 
     sudo apt-get install git

@@ -9,8 +9,8 @@ INSTALL (for ubuntu)
 
     sudo apt-get install git
     sudo apt-get install python-leveldb
-    git clone https://github.com/zack-bitcoin/basiccoin.git
-    cd basiccoin/
+    git clone https://github.com/zack-bitcoin/forumcoin.git
+    cd forumcoin
 
 To run 1 node
 

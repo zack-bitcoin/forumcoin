@@ -10,9 +10,7 @@ def enough_coins(tx, txs, DB):
     address=addr(tx)
     total_cost=0
     for Tx in filter(lambda t: address==addr(t), [tx]+txs):
-        if Tx['type']=='spend':
-            total_cost+=Tx['amount']
-        if Tx['type']=='post':
+        if Tx['type'] in ['spend', 'post', 'reputation']:
             total_cost+=Tx['amount']
         if Tx['type']=='mint':
             total_cost-=custom.block_reward
@@ -53,8 +51,13 @@ def post_verify(tx, txs, DB):
         if i[0]==id_:
             return False
     if len(tx['msg'])>500: return False
+    if not signatures_check(tx, txs, DB): return False
     return spend_verify(tx, txs, DB)
-tx_check={'spend':spend_verify, 'mint':mint_verify, 'post':post_verify}####
+
+def reputation_verify(tx, txs, DB):
+    if not signatures_check(tx, txs, DB): return False
+    return enough_coins(tx, txs, DB)
+tx_check={'spend':spend_verify, 'mint':mint_verify, 'post':post_verify, 'reputation':reputation_verify}####
 #------------------------------------------------------
 
 def adjust(key, pubkey, amount, DB):
@@ -82,7 +85,13 @@ def post(tx, DB):
     DB['posts'].append(id_)
     blockchain.db_put(id_, post, DB) 
     
-add_block={'mint':mint, 'spend':spend, 'post':post}####
+def reputation(tx, DB):
+    address=addr(tx)
+    adjust('amount', address, -tx['amount']-custom.fee, DB)
+    adjust('reputation', tx['to'], tx['amount'], DB)
+    adjust('count', address, 1, DB)
+
+add_block={'mint':mint, 'spend':spend, 'post':post, 'reputation':reputation}####
 #-----------------------------------------
 
 def unmint(tx, DB):
@@ -104,6 +113,12 @@ def unpost(tx, DB):
     id_=postid(post)
     DB['posts'].remove(id_)
     blockchain.db_delete(id_, DB) 
+
+def unreputation(tx, DB):
+    address=addr(tx)
+    adjust('amount', address, tx['amount']+custom.fee, DB)
+    adjust('reputation', tx['to'], -tx['amount'], DB)
+    adjust('count', address, -1, DB)
     
-delete_block={'mint':unmint, 'spend':unspend, 'post':unpost}####
+delete_block={'mint':unmint, 'spend':unspend, 'post':unpost, 'reputation':unreputation}####
 #------------------------------------------------

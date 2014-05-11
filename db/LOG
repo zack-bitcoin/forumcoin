@@ -1,0 +1,13 @@
+2014/05/10-17:48:17.668037 7f41e43cb740 Delete type=3 #1
+2014/05/10-17:48:39.170025 7f41e19fb700 Level-0 table #5: started
+2014/05/10-17:48:39.170119 7f41e19fb700 Level-0 table #5: 0 bytes OK
+2014/05/10-17:48:39.174070 7f41e19fb700 Delete type=0 #3
+2014/05/10-17:48:39.174198 7f41e19fb700 Manual compaction at level-0 from (begin) .. (end); will stop at (end)
+2014/05/10-17:48:45.690015 7f41e19fb700 Level-0 table #7: started
+2014/05/10-17:48:45.690079 7f41e19fb700 Level-0 table #7: 0 bytes OK
+2014/05/10-17:48:45.693757 7f41e19fb700 Delete type=0 #4
+2014/05/10-17:48:45.693880 7f41e19fb700 Manual compaction at level-0 from (begin) .. (end); will stop at (end)
+2014/05/10-17:49:22.714150 7f41e19fb700 Level-0 table #9: started
+2014/05/10-17:49:22.718876 7f41e19fb700 Level-0 table #9: 114 bytes OK
+2014/05/10-17:49:22.720768 7f41e19fb700 Delete type=0 #6
+2014/05/10-17:49:22.720896 7f41e19fb700 Manual compaction at level-0 from (begin) .. (end); will stop at (end)

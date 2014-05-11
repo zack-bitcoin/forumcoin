@@ -93,7 +93,6 @@ def home(DB, dic):
         print('DISPLAY POSTS parent: ' +str(parent))
         out='{}'
         if tabs>4: return out
-        many=0
         print('posts: ' +str(posts))
         for pos in posts:
             id_=transactions.postid(pos)
@@ -101,7 +100,6 @@ def home(DB, dic):
             print('pos: ' +str(pos))
             if pos['parent']==parent:
                 print('match')
-                many+=1
                 bumper='<div class="contentcontainer med left" style="margin-left: '+str(100*tabs)+'px;"><p>{}</p></div>'
                 out=out.format(bumper.format(str(pos['msg'])+' '+str(transactions.postid(pos)))+'{}')
                 out=out.format(easyForm('/home', 'comment', '''
@@ -110,7 +108,6 @@ def home(DB, dic):
                 <input type="hidden" name="parent" value="{}">
                 <input type="text" name="amount" value="amount to spend">
                 <input type="hidden" name="privkey" value="{}">'''.format(id_,privkey)))
-            if many>0:
                 out=out.format(display_posts(posts, id_, tabs+1))
         return out
     print('out: ' +str(out))

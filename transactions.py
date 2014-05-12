@@ -56,6 +56,7 @@ def post_verify(tx, txs, DB):
 
 def reputation_verify(tx, txs, DB):
     if not signatures_check(tx, txs, DB): return False
+    if 'to' not in tx: return False
     return enough_coins(tx, txs, DB)
 tx_check={'spend':spend_verify, 'mint':mint_verify, 'post':post_verify, 'reputation':reputation_verify}####
 #------------------------------------------------------
@@ -80,14 +81,14 @@ def post(tx, DB):
     address=addr(tx)
     adjust('amount', address, -tx['amount']-custom.fee, DB)
     adjust('count', address, 1, DB)
-    post={'amount':tx['amount'], 'msg':tx['msg'], 'parent':tx['parent'], 'children':[]}
+    post={'reputation':tx['amount'], 'msg':tx['msg'], 'parent':tx['parent'], 'children':[]}
     id_=postid(post)
     DB['posts'].append(id_)
     blockchain.db_put(id_, post, DB) 
     
 def reputation(tx, DB):
     address=addr(tx)
-    adjust('amount', address, -tx['amount']-custom.fee, DB)
+    adjust('amount', address, -abs(tx['amount'])-custom.fee, DB)
     adjust('reputation', tx['to'], tx['amount'], DB)
     adjust('count', address, 1, DB)
 
@@ -109,14 +110,14 @@ def unpost(tx, DB):
     address=addr(tx)
     adjust('amount', address, tx['amount']+custom.fee, DB)
     adjust('count', address, -1, DB)
-    post={'amount':tx['amount'], 'msg':tx['msg'], 'parent':tx['parent'], 'children':[]}
+    post={'reputation':tx['amount'], 'msg':tx['msg'], 'parent':tx['parent'], 'children':[]}
     id_=postid(post)
     DB['posts'].remove(id_)
     blockchain.db_delete(id_, DB) 
 
 def unreputation(tx, DB):
     address=addr(tx)
-    adjust('amount', address, tx['amount']+custom.fee, DB)
+    adjust('amount', address, abs(tx['amount'])+custom.fee, DB)
     adjust('reputation', tx['to'], -tx['amount'], DB)
     adjust('count', address, -1, DB)
     

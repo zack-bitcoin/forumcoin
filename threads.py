@@ -10,7 +10,7 @@ DB={'db':db,
     'suggested_txs':[], 
     'posts':[],
     'diffLength':'0'}
-blockchain.db_put('root', {'msg':'root', 'parent':'root', 'children':[], 'amount':0}, DB)
+blockchain.db_put('root', {'msg':'root', 'parent':'root', 'children':[], 'reputation':0}, DB)
 todo=[
 #keeps track of blockchain database, checks on peers for new 
 #blocks and transactions.

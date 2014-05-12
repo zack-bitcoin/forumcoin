@@ -2,6 +2,11 @@ import copy, tools, blockchain, custom, http, transactions
 #the easiest way to understand this file is to try it out and have a look at 
 #the html it creates. It creates a very simple page that allows you to spend 
 #money.
+def vote(amount, pubkey, privkey, parent, DB):
+    amount=int(amount*(10**5))
+    tx={'type':'reputation', 'pubkeys':[pubkey], 'amount':amount, 'to':parent}
+    easy_add_transaction(tx, privkey, DB)
+
 def spend(amount, pubkey, privkey, to_pubkey, DB):
     amount=int(amount*(10**5))
     tx={'type':'spend', 'pubkeys':[pubkey], 'amount':amount, 'to':to_pubkey}
@@ -50,7 +55,9 @@ def page1(DB, brainwallet=custom.brainwallet):
 
 def home(DB, dic):
 
-    def display_msg(msg): return str(msg['msg'])+' : '+str(msg['amount']/100000.0)
+    def display_msg(msg): 
+        try: return str(msg['msg'])+' : '+str(msg['reputation']/100000.0)
+        except: return str(msg['msg'])+' : '+str(msg['amount']/100000.0)
     def display_posts(posts, parent, tabs):
         out='{}'
         if tabs>2: return out
@@ -59,6 +66,7 @@ def home(DB, dic):
             if pos['parent']==parent:
                 bumper='<div class="contentcontainer med left" style="margin-left: '+str(100*tabs)+'px;"><p>{}</p></div>'
                 if pos in zeroth_confirmations:
+                    print('pos: ' +str(pos))
                     out=out.format(bumper.format(display_msg(pos))+'{}')
                 else:
                     txt=bumper.format(easyForm('/home', display_msg(pos), '''
@@ -68,6 +76,18 @@ def home(DB, dic):
                     out=out.format(txt)
                 out=out.format(display_posts(posts, id_, tabs+1))
         return out
+    def balance_(address, DB):
+        balance=blockchain.db_get(address, DB)['amount']
+        for tx in DB['txs']:
+            if tx['type'] == 'spend':
+                if tx['to'] == address:
+                    balance += tx['amount']
+                if tx['pubkeys'][0] == pubkey:
+                    balance -= tx['amount'] + custom.fee
+            if tx['type'] == 'post':
+                if tx['pubkeys'][0] == pubkey:
+                    balance -= tx['amount'] + custom.fee
+        return balance
     if 'BrainWallet' in dic:
         dic['privkey']=tools.det_hash(dic['BrainWallet'])
     elif 'privkey' not in dic:
@@ -75,22 +95,14 @@ def home(DB, dic):
     privkey=dic['privkey']
     pubkey=tools.privtopub(dic['privkey'])
     address=tools.make_address([pubkey], 1)
-    func={'spend': (lambda dic: spend(float(dic['amount']), pubkey, privkey, dic['to'], DB)),
-          'post': (lambda dic: post(float(dic['amount']), pubkey, privkey, dic['msg'], dic['parent'], DB))}
-    if 'do' in dic.keys(): func[dic['do']](dic)
+    balance=balance_(address, DB)
+    doFunc={'spend': (lambda dic: spend(float(dic['amount']), pubkey, privkey, dic['to'], DB)),
+            'post': (lambda dic: post(float(dic['amount']), pubkey, privkey, dic['msg'], dic['parent'], DB)),
+            'vote': (lambda dic: vote(float(dic['amount']), pubkey, privkey, dic['location'], DB))}
+    if 'do' in dic.keys(): doFunc[dic['do']](dic)
     out=empty_page
     out=out.format('<p>your address: ' +str(address)+'</p>{}')
     out=out.format('<p>current block: ' +str(DB['length'])+'</p>{}')
-    balance=blockchain.db_get(address, DB)['amount']
-    for tx in DB['txs']:
-        if tx['type'] == 'spend':
-            if tx['to'] == address:
-                balance += tx['amount']
-            if tx['pubkeys'][0] == pubkey:
-                balance -= tx['amount'] + custom.fee
-        if tx['type'] == 'post':
-            if tx['pubkeys'][0] == pubkey:
-                balance -= tx['amount'] + custom.fee
     out=out.format('<p>current balance is: ' +str(balance/100000.0)+'</p>{}')
     if balance>0:
         out=out.format(easyForm('/home', 'spend money', '''
@@ -119,6 +131,10 @@ def home(DB, dic):
     out=out.format(easyForm('/home', 'Back: cd ../', txt.format(msg['parent'])))
     out=out.format(easyForm('/home', 'Root: cd /', txt.format('root')))
     out=out.format('<h2>'+display_msg(msg)+'</h2>{}')
+    if balance>0: out=out.format(easyForm('/home', 'upvote/downvote', txt.format(dic['location'])+'''
+    <input type="hidden" name="do" value="vote">
+    <input type="text" name="amount" value="amount +/-">
+    '''))
     out=out.format(display_posts(posts, dic['location'], 0))
     return out.format('')
 

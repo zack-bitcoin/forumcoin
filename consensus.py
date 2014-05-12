@@ -27,7 +27,6 @@ def mine(hashes_till_check, reward_address, DB):
                'target': target,
                'diffLength': blockchain.hexInvert(target),
                'txs': [make_mint(pubkey, DB)]}
-        print('out: ' + str(out))
         out = tools.unpackage(tools.package(out))
         return out
 

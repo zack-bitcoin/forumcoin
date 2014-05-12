@@ -18,7 +18,7 @@ def kill_processes_using_ports(ports):
 def serve_forever(message_handler_func, PORT, queue):
     server = socket.socket()
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind(('127.0.0.1', PORT))
+    server.bind(('0.0.0.0', PORT))
     server.listen(100)
     while True:
         client, addr = server.accept()

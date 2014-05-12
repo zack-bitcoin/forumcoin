@@ -25,8 +25,11 @@ def serve_forever(message_handler_func, PORT, queue):
         (ip, port) = addr
         data = client.recv(MAX_MESSAGE_SIZE)
         #we could insert security checks here
-        data=tools.unpackage(data)
-        client.send(tools.package(message_handler_func(data, queue)))
+        try:
+            data=tools.unpackage(data)
+            client.send(tools.package(message_handler_func(data, queue)))
+        except:
+            client.send(tools.package({'error':'error'}))
 
 def connect(msg, host, port):
     if len(msg)<1 or len(msg)>MAX_MESSAGE_SIZE:

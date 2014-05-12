@@ -31,7 +31,11 @@ def mine(hashes_till_check, reward_address, DB):
         return out
 
     def make_block(prev_block, txs, pubkey, DB):
-        leng = int(prev_block['length']) + 1
+        try:
+            leng = int(prev_block['length']) + 1
+        except:
+            print('prev: ' +str(prev_block))
+            error('here')
         target = blockchain.target(DB, leng)
         diffLength = blockchain.hexSum(prev_block['diffLength'],
                                        blockchain.hexInvert(target))

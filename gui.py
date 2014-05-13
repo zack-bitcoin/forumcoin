@@ -99,7 +99,9 @@ def home(DB, dic):
     doFunc={'spend': (lambda dic: spend(float(dic['amount']), pubkey, privkey, dic['to'], DB)),
             'post': (lambda dic: post(float(dic['amount']), pubkey, privkey, dic['msg'], dic['parent'], DB)),
             'vote': (lambda dic: vote(float(dic['amount']), pubkey, privkey, dic['location'], DB))}
-    if 'do' in dic.keys(): doFunc[dic['do']](dic)
+    try: 
+        if 'do' in dic.keys(): doFunc[dic['do']](dic)
+    except: pass
     out=empty_page
     out=out.format('<p>your address: ' +str(address)+'</p>{}')
     out=out.format('<p>current block: ' +str(DB['length'])+'</p>{}')

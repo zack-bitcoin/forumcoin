@@ -43,10 +43,10 @@ def main(dic, DB):
            'txs':txs, 'pushtx':pushtx, 'pushblock':pushblock}
     if dic['type'] not in funcs.keys():
         return str(dic['type'])+' is not in the api'
-    check=security_check(dic)
-    if not check['bool']:
-        return check
     try:
+        check=security_check(dic)
+        if not check['bool']:
+            return check
         return funcs[dic['type']](check['newdic'], DB)
     except:
         pass

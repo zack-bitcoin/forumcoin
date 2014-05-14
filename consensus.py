@@ -155,11 +155,21 @@ def suggestions(DB):
 
 def mainloop(peers, DB):
     while True:
-        time.sleep(1)
-        peers_check(peers, DB)
-        suggestions(DB)
+        try:
+            time.sleep(1)
+            peers_check(peers, DB)
+        except:
+            pass
+        try: 
+            suggestions(DB)
+        except:
+            pass
+
 
 
 def miner(reward_address, peers, hashes_till_check, DB):
     while True:
-        mine(hashes_till_check, reward_address, DB)
+        try:
+            mine(hashes_till_check, reward_address, DB)
+        except:
+            pass

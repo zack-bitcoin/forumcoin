@@ -25,8 +25,10 @@ def serve_forever(message_handler_func, PORT, queue):
         (ip, port) = addr
         data = client.recv(MAX_MESSAGE_SIZE)
         #we could insert security checks here
-        data=tools.unpackage(data)
-        client.send(tools.package(message_handler_func(data, queue)))
+        try:
+            data=tools.unpackage(data)
+            client.send(tools.package(message_handler_func(data, queue)))
+        except: pass
 
 def connect(msg, host, port):
     if len(msg)<1 or len(msg)>MAX_MESSAGE_SIZE:
@@ -34,7 +36,7 @@ def connect(msg, host, port):
         return
     s = socket.socket()
     try:
-        s.settimeout(2)
+        s.settimeout(4)
         s.connect((str(host), int(port)))
         msg['version']=custom.version
         s.send(tools.package(msg))
@@ -44,6 +46,6 @@ def connect(msg, host, port):
     except Exception as e:
         #print('THE ERROR WAS: ' +str(e))
         #print('disconnect')
-        return {'error':'error'}
+        return {'error':e}
 
 def send_command(peer, msg): return connect(msg, peer[0], peer[1])

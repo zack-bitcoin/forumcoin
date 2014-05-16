@@ -21,7 +21,7 @@ history_length=400#how far back in history do
 inflection=0.985#This constant is selected such 
 #that the 50 most recent blocks count for 1/2 the 
 #total weight.
-download_many=500#max number of blocks to request
+download_many=20#max number of blocks to request
 #from a peer at the same time.
 max_download=50000
 privkey=tools.det_hash(brainwallet)

@@ -10,7 +10,10 @@ import time
 import copy
 
 
-def mine(hashes_till_check, reward_address, DB):
+def mine(dic):
+    hashes_till_check=dic['hashes']
+    reward_address=dic['reward_address']
+    DB=dic['DB']
     # Tries to mine the next block hashes_till_check many times.
     def make_mint(pubkey, DB):
         address = tools.make_address([reward_address], 1)
@@ -77,8 +80,11 @@ def mine(hashes_till_check, reward_address, DB):
     DB['suggested_blocks'].append(block)
 
 
-def peers_check(peers, DB):
+def peers_check(dic):
     # Check on the peers to see if they know about more blocks than we do.
+    peers=dic['peers']
+    DB=dic['DB']
+
     def peer_check(peer, DB):
 
         def cmd(x):
@@ -104,12 +110,11 @@ def peers_check(peers, DB):
                           'range': bounds(length, peers_block_count, DB)})
             if type(blocks) != type([1, 2]):
                 return []
-            for i in range(2):  # Only delete a max of 2 blocks, otherwise a
+            for i in range(10):  # Only delete a max of 20 blocks, otherwise a
                 # peer might trick us into deleting everything over and over.
                 if fork_check(blocks, DB):
                     blockchain.delete_block(DB)
-            for block in blocks:
-                DB['suggested_blocks'].append(block)
+            DB['suggested_blocks']+=blocks
             return
 
         def ask_for_txs(peer, DB):
@@ -152,24 +157,22 @@ def suggestions(DB):
     [blockchain.add_block(block, DB) for block in DB['suggested_blocks']]
     DB['suggested_blocks'] = []
 
+def tryPass(func, dic):
+    try: func(dic)
+    except: pass
 
 def mainloop(peers, DB):
     while True:
-        try:
-            time.sleep(1)
-            peers_check(peers, DB)
-        except:
-            pass
-        try: 
-            suggestions(DB)
-        except:
-            pass
+        tryPass(peers_check, {'peers':peers, 'DB':DB})
+        tryPass(suggestions, DB)
+        time.sleep(2)
 
 
 
-def miner(reward_address, peers, hashes_till_check, DB):
+def miner(reward_address, hashes_till_check, DB):
+    if hashes_till_check==0: return
     while True:
-        try:
-            mine(hashes_till_check, reward_address, DB)
-        except:
-            pass
+        tryPass(mine, {'hashes':hashes_till_check,
+                       'reward_address':reward_address,
+                       'DB':DB})
+        time.sleep(1)

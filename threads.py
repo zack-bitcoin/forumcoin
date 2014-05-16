@@ -1,5 +1,4 @@
 import consensus, listener, threading, custom, leveldb, gui, networking, time, sys, blockchain
-
 db=leveldb.LevelDB(custom.database_name)
 DB={'db':db, 
     'recentHash':0, 
@@ -15,7 +14,7 @@ todo=[
 #keeps track of blockchain database, checks on peers for new 
 #blocks and transactions.
     [consensus.miner, 
-     (custom.pubkey, custom.peers, custom.hashes_per_check, DB), True],
+     (custom.pubkey, custom.hashes_per_check, DB), True],
     [consensus.mainloop, 
      (custom.peers, DB), True],
 #listens for peers. Peers might ask us for our blocks and our pool of recent 

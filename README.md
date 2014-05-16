@@ -12,25 +12,14 @@ INSTALL (for ubuntu)
     git clone https://github.com/zack-bitcoin/forumcoin.git
     cd forumcoin
 
-To run 1 node
+TO RUN
+change your password in custom.py, then:
 
     python threads.py
 
 And send your browser to
 
     http://localhost:8700
-
-To quickly run 5 nodes (linux/mac only)
-
-    ./go.sh
-
-Then send your browser to 
-
-    http://localhost:8701
-    http://localhost:8702
-    http://localhost:8703
-    http://localhost:8704
-    http://localhost:8705
 
 This project is based off of: https://github.com/zack-bitcoin/basiccoin
 

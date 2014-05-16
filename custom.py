@@ -2,7 +2,8 @@ import tools, hashlib
 #This is for easy customization of new currencies.
 
 brainwallet='brain wallet'
-peers=[['66.215.166.6', 80]]
+peers=[['66.215.166.6', 80],
+       ['192.241.212.114', 80]]
 
 def hash_(x): return hashlib.sha256(x).hexdigest()
 database_name='DB.db'

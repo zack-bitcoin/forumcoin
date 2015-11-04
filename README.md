@@ -1,3 +1,5 @@
+This blockchain is not supported. It was a rough draft for Flying Fox. https://github.com/BumblebeeBat/FlyingFox
+
 forumcoin
 =========
 
